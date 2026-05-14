@@ -16,8 +16,8 @@
     "format": "prettier --write \"**/*.{ts,tsx,astro}\"",
     "typecheck": "astro check",
     "cf:login": "wrangler login",
-    "deploy:cf": "astro build && wrangler pages deploy dist --project-name=vental-marketing-site --branch=main",
-    "deploy:cf:preview": "astro build && wrangler pages deploy dist --project-name=vental-marketing-site"
+    "deploy:cf": "astro build && wrangler deploy",
+    "deploy:cf:preview": "astro build && wrangler versions upload"
   },
   "dependencies": {
     "@astrojs/react": "^4.4.2",
