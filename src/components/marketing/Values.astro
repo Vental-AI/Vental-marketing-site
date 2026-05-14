@@ -1,0 +1,52 @@
+---
+import { CompassIcon, HeartHandshakeIcon, MicroscopeIcon } from "lucide-react"
+
+const values = [
+  {
+    icon: MicroscopeIcon,
+    title: "Show the work",
+    body: "All the math and computations are out in the open and exportable; we show the truth in the numbers.",
+  },
+  {
+    icon: CompassIcon,
+    title: "Ship narrow, ship deep",
+    body: "We'd rather solve the tax estimation workflow exceptionally well than be a mediocre general-purpose CRE tool.",
+  },
+  {
+    icon: HeartHandshakeIcon,
+    title: "Customers in the room",
+    body: "Tax consultants, underwriters, and appraisers sit in our design reviews. The product is co-built with the people who use it.",
+  },
+]
+---
+
+<section id="values" class="scroll-mt-16 border-b border-border">
+  <div class="mx-auto max-w-[1200px] px-6 py-24 md:py-32">
+    <div class="mx-auto flex max-w-2xl flex-col gap-4 text-center">
+      <p
+        class="text-xs font-medium tracking-widest text-muted-foreground uppercase"
+      >
+        Values
+      </p>
+      <h2
+        class="text-3xl font-semibold tracking-tight text-balance sm:text-4xl"
+      >
+        How we operate.
+      </h2>
+    </div>
+
+    <div class="mt-16 grid gap-8 md:grid-cols-3">
+      {
+        values.map((v) => (
+          <div class="flex flex-col gap-3 rounded-2xl border border-border bg-card p-8">
+            <v.icon className="size-5 text-foreground" />
+            <h3 class="text-base font-medium tracking-tight">{v.title}</h3>
+            <p class="text-sm leading-relaxed text-muted-foreground">
+              {v.body}
+            </p>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>

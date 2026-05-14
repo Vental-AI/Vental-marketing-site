@@ -1,0 +1,23 @@
+---
+import Layout from "@/layouts/main.astro"
+import { HeroHeader } from "@/components/marketing/HeroHeader"
+import SiteFooter from "@/components/marketing/SiteFooter.astro"
+import TeamClipPath from "@/components/marketing/TeamClipPath.astro"
+import Values from "@/components/marketing/Values.astro"
+---
+
+<Layout
+  title="About · Vental"
+  description="Meet the team behind Vental — a specialist tool for commercial property tax."
+>
+  <div
+    class="dark relative isolate min-h-svh overflow-x-hidden bg-background text-foreground"
+  >
+    <HeroHeader client:load />
+    <main>
+      <TeamClipPath />
+      <Values />
+    </main>
+    <SiteFooter />
+  </div>
+</Layout>

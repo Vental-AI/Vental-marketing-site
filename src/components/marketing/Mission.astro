@@ -1,0 +1,58 @@
+---
+const points = [
+  {
+    title: "Defensibility over magic",
+    body: "Every estimate ships with the comps, weights, and adjustments. No black-box scores — only paper trails.",
+  },
+  {
+    title: "Built on public records",
+    body: "The data that informs property tax is already public. We do the unglamorous work of indexing, normalizing, and keeping it fresh.",
+  },
+  {
+    title: "Designed for specialists",
+    body: "Vental is opinionated. We're not a generic valuation platform — we're a tool for people who do this every day.",
+  },
+]
+---
+
+<section class="border-b border-border">
+  <div class="mx-auto max-w-[1200px] px-6 py-24 md:py-32">
+    <div class="grid gap-16 lg:grid-cols-[1fr_1.4fr] lg:items-start">
+      <div class="flex flex-col gap-4">
+        <p
+          class="text-xs font-medium tracking-widest text-muted-foreground uppercase"
+        >
+          Our mission
+        </p>
+        <h2
+          class="text-3xl font-semibold tracking-tight text-balance sm:text-4xl"
+        >
+          We're building the system of record for commercial property tax.
+        </h2>
+      </div>
+
+      <div class="flex flex-col gap-10">
+        <p class="text-lg text-pretty text-muted-foreground">
+          Commercial property tax is one of the largest line items in real
+          estate — and one of the most opaque. We started Vental because the
+          process of producing a defensible estimate hadn't meaningfully changed
+          in decades: spreadsheets, PDFs, and tribal knowledge.
+        </p>
+        <div
+          class="grid gap-px overflow-hidden rounded-2xl border border-border bg-border md:grid-cols-3"
+        >
+          {
+            points.map((p) => (
+              <div class="flex flex-col gap-2 bg-card p-6">
+                <h3 class="text-sm font-medium tracking-tight">{p.title}</h3>
+                <p class="text-sm leading-relaxed text-muted-foreground">
+                  {p.body}
+                </p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

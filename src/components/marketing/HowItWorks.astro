@@ -1,0 +1,64 @@
+---
+import { ArrowRightIcon } from "lucide-react"
+
+const steps = [
+  {
+    num: "01",
+    title: "Look up a property",
+    body: "Search by parcel ID. Vental pulls assessed value, ownership history, and structural attributes from public records.",
+  },
+  {
+    num: "02",
+    title: "Review the comps",
+    body: "Vental surfaces comparable properties weighted by similarity, geography, and real estate classification. Adjust the weights or exclude specific comps in one click.",
+  },
+  {
+    num: "03",
+    title: "Generate a defensible report",
+    body: "Export as XLSX/PDF that shows the methodology, comp set, and adjustments.",
+  },
+]
+---
+
+<section id="how-it-works" class="border-b border-border bg-muted/30">
+  <div class="mx-auto max-w-[1200px] px-6 py-24 md:py-32">
+    <div class="mx-auto flex max-w-2xl flex-col gap-4 text-center">
+      <p
+        class="text-xs font-medium tracking-widest text-muted-foreground uppercase"
+      >
+        How it works
+      </p>
+      <h2
+        class="text-3xl font-semibold tracking-tight text-balance sm:text-4xl"
+      >
+        From parcel ID to defensible valuation in three steps.
+      </h2>
+    </div>
+
+    <div class="mt-16 grid gap-8 md:grid-cols-3">
+      {
+        steps.map((step) => (
+          <div class="relative flex flex-col gap-3 rounded-2xl border border-border bg-card p-8">
+            <span class="text-xs font-medium tracking-widest text-muted-foreground">
+              {step.num}
+            </span>
+            <h3 class="text-lg font-medium tracking-tight">{step.title}</h3>
+            <p class="text-sm leading-relaxed text-muted-foreground">
+              {step.body}
+            </p>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="mt-12 flex justify-center">
+      <a
+        href="/product/methodology"
+        class="inline-flex items-center gap-2 text-sm font-medium text-foreground underline-offset-4 hover:underline"
+      >
+        Read the full calculation methodology
+        <ArrowRightIcon className="size-4" />
+      </a>
+    </div>
+  </div>
+</section>

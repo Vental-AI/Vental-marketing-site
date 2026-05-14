@@ -1,0 +1,78 @@
+---
+import { Image } from "astro:assets"
+
+import Layout from "@/layouts/main.astro"
+import { HeroHeader } from "@/components/marketing/HeroHeader"
+import SiteFooter from "@/components/marketing/SiteFooter.astro"
+import Features from "@/components/marketing/Features.astro"
+import HowItWorks from "@/components/marketing/HowItWorks.astro"
+import Mission from "@/components/marketing/Mission.astro"
+import FaqSection from "@/components/marketing/FaqSection.astro"
+import Cta from "@/components/marketing/Cta.astro"
+import heroImage from "@/assets/login-page-image.jpg"
+---
+
+<Layout
+  title="Product · Vental"
+  description="A comps-based commercial property tax estimator built for tax consultants, appraisers, and CRE owners."
+>
+  <div
+    class="dark relative isolate min-h-svh overflow-x-hidden bg-background text-foreground"
+  >
+    <HeroHeader client:load />
+    <main>
+      <section class="relative isolate overflow-hidden bg-black">
+        <div
+          aria-hidden
+          class="absolute inset-0 -z-10 animate-in fade-in blur-in fill-mode-backwards duration-1000 ease-out"
+        >
+          <Image
+            src={heroImage}
+            alt=""
+            widths={[1280, 1920, 2560]}
+            sizes="100vw"
+            loading="eager"
+            class="size-full object-cover object-center"
+          />
+          <div
+            class="absolute inset-0 bg-gradient-to-b from-black/55 via-black/75 to-background"
+          >
+          </div>
+        </div>
+
+        <div
+          class="relative mx-auto max-w-[1200px] px-6 pt-32 pb-16 md:pt-40 md:pb-20"
+        >
+          <div
+            class="mx-auto flex max-w-3xl flex-col items-center gap-5 text-center"
+          >
+            <p
+              class="animate-in fade-in blur-in fill-mode-backwards delay-150 duration-700 ease-out text-xs font-medium tracking-widest text-white/70 uppercase"
+            >
+              Product
+            </p>
+            <h1
+              class="animate-in fade-in blur-in fill-mode-backwards delay-300 duration-700 ease-out text-4xl font-semibold tracking-tight text-balance text-white sm:text-5xl md:text-6xl"
+            >
+              A defensible tax estimate, end to end.
+            </h1>
+            <p
+              class="animate-in fade-in blur-in fill-mode-backwards delay-500 duration-700 ease-out max-w-2xl text-lg text-pretty text-white/80 sm:text-xl"
+            >
+              Vental brings the data, the comps, and the methodology into one
+              workflow — replacing the spreadsheet sprawl that slows business
+              productivity.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <Mission />
+      <HowItWorks />
+      <Features />
+      <FaqSection />
+      <Cta />
+    </main>
+    <SiteFooter />
+  </div>
+</Layout>

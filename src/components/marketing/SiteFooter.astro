@@ -1,0 +1,70 @@
+---
+import { Logo } from "@/components/marketing/Logo"
+
+const columns = [
+  {
+    title: "Product",
+    links: [
+      { href: "/product#features", label: "Features" },
+      { href: "/product/methodology", label: "How it works" },
+      { href: "/product#faq", label: "FAQ" },
+    ],
+  },
+  {
+    title: "Company",
+    links: [
+      { href: "/about", label: "About / Team" },
+      { href: "mailto:hello@vental.ai", label: "Contact" },
+    ],
+  },
+  {
+    title: "Account",
+    links: [{ href: "mailto:hello@vental.ai", label: "Book a demo" }],
+  },
+]
+
+const year = new Date().getFullYear()
+---
+
+<footer class="border-t border-border bg-background">
+  <div class="mx-auto max-w-[1200px] px-6 py-16">
+    <div class="grid gap-12 md:grid-cols-[1.5fr_repeat(3,1fr)]">
+      <div class="flex flex-col gap-4">
+        <a href="/" class="flex items-center" aria-label="Vental home">
+          <Logo />
+        </a>
+        <p class="max-w-xs text-sm text-muted-foreground">
+          Defensible commercial property tax estimates, built from comparable
+          public records.
+        </p>
+      </div>
+
+      {
+        columns.map((col) => (
+          <div class="flex flex-col gap-3">
+            <h3 class="text-sm font-medium text-foreground">{col.title}</h3>
+            <ul class="flex flex-col gap-2">
+              {col.links.map((link) => (
+                <li>
+                  <a
+                    href={link.href}
+                    class="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+
+    <div
+      class="mt-16 flex flex-col items-start justify-between gap-4 border-t border-border pt-6 text-xs text-muted-foreground md:flex-row md:items-center"
+    >
+      <p>© {year} Vental, Inc. All rights reserved.</p>
+      <p>Built for commercial real estate professionals.</p>
+    </div>
+  </div>
+</footer>

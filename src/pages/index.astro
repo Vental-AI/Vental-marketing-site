@@ -1,0 +1,12 @@
+---
+import Layout from "@/layouts/main.astro"
+import { HeroHeader } from "@/components/marketing/HeroHeader"
+import HeroSection4 from "@/components/marketing/HeroSection4.astro"
+---
+
+<Layout>
+  <HeroHeader client:load />
+  <main class="@container overflow-x-hidden">
+    <HeroSection4 />
+  </main>
+</Layout>

@@ -1,0 +1,267 @@
+---
+import { Image } from "astro:assets"
+import { ChevronDownIcon } from "lucide-react"
+
+import heroImage from "@/assets/login-page-image.jpg"
+import { team, SOCIAL_LABEL, SOCIAL_PATHS } from "@/data/team"
+---
+
+<section
+  class="relative isolate flex min-h-svh flex-col justify-center overflow-hidden bg-black py-20 md:py-24"
+>
+  <div aria-hidden class="absolute inset-0 -z-10">
+    <Image
+      src={heroImage}
+      alt=""
+      widths={[1280, 1920, 2560]}
+      sizes="100vw"
+      loading="lazy"
+      class="size-full object-cover object-center"
+    />
+    <div
+      class="absolute inset-0 bg-gradient-to-b from-black/65 via-black/75 to-black/85"
+    >
+    </div>
+  </div>
+
+  <div class="relative mx-auto w-full max-w-7xl px-4">
+    <h2
+      class="mb-4 animate-in text-center text-4xl font-semibold tracking-tight text-balance text-foreground duration-700 ease-out fill-mode-backwards blur-in fade-in md:text-5xl"
+    >
+      Meet our team
+    </h2>
+    <p
+      class="mx-auto max-w-xl animate-in text-center text-pretty text-muted-foreground delay-200 duration-700 ease-out fill-mode-backwards blur-in fade-in"
+    >
+      A small team of engineers, designers, and tax practitioners building a
+      specialist tool for commercial property tax.
+    </p>
+
+    {/* Mobile: stacked grid, no clip-path */}
+    <div class="mt-12 grid gap-4 sm:grid-cols-2 md:hidden">
+      {
+        team.map((m) => (
+          <article class="relative overflow-hidden rounded-3xl bg-card">
+            <div class="relative aspect-[4/5]">
+              {typeof m.img === "string" ? (
+                <img
+                  src={m.img}
+                  alt=""
+                  loading="lazy"
+                  class:list={[
+                    "absolute inset-0 size-full object-cover",
+                    m.imgClass,
+                  ]}
+                />
+              ) : (
+                <Image
+                  src={m.img}
+                  alt=""
+                  widths={[320, 640, 960]}
+                  sizes="(min-width: 640px) 320px, 100vw"
+                  loading="lazy"
+                  class:list={[
+                    "absolute inset-0 size-full object-cover",
+                    m.imgClass,
+                  ]}
+                />
+              )}
+              <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+              <a
+                href={`/team/${m.slug}`}
+                aria-label={`Read ${m.name}'s bio`}
+                class="absolute inset-0 z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              >
+                <span class="sr-only">Read {m.name}'s bio</span>
+              </a>
+              <div
+                class:list={[
+                  "pointer-events-none absolute inset-x-0 bottom-0 z-20 flex flex-col gap-3 p-5 text-white",
+                  m.contentClass,
+                ]}
+              >
+                <div class="flex flex-col gap-1">
+                  <h3 class="text-xl font-semibold">{m.name}</h3>
+                  <p class="text-sm opacity-90">{m.role}</p>
+                </div>
+                <div class="pointer-events-auto flex flex-wrap gap-2">
+                  {m.socials.map((s) => (
+                    <a
+                      href={s.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`${m.name} on ${SOCIAL_LABEL[s.kind]}`}
+                      class="inline-flex size-9 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition-colors hover:bg-white/25"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                        set:html={SOCIAL_PATHS[s.kind]}
+                      />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+
+    {/* Desktop: hover-to-expand clip-path row */}
+    <div
+      class="team-grid mt-12 hidden h-[420px] items-center justify-center gap-6 md:flex"
+    >
+      {
+        team.map((m, i) => (
+          <article
+            class="team-card relative h-full animate-in overflow-hidden duration-700 ease-out fill-mode-backwards blur-in fade-in"
+            style={`animation-delay:${300 + i * 100}ms`}
+          >
+            {typeof m.img === "string" ? (
+              <img
+                src={m.img}
+                alt=""
+                loading="lazy"
+                class:list={[
+                  "absolute inset-0 size-full object-cover",
+                  m.imgClass,
+                ]}
+              />
+            ) : (
+              <Image
+                src={m.img}
+                alt=""
+                widths={[320, 640, 960, 1280]}
+                sizes="(min-width: 1024px) 640px, (min-width: 768px) 400px, 50vw"
+                loading="lazy"
+                class:list={[
+                  "absolute inset-0 size-full object-cover",
+                  m.imgClass,
+                ]}
+              />
+            )}
+            <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+            <a
+              href={`/team/${m.slug}`}
+              aria-label={`Read ${m.name}'s bio`}
+              class="absolute inset-0 z-10 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            >
+              <span class="sr-only">Read {m.name}'s bio</span>
+            </a>
+            <div
+              class:list={[
+                "team-card-content pointer-events-none absolute inset-0 z-20 flex flex-col justify-end p-6 text-white",
+                m.contentClass,
+              ]}
+            >
+              <h3 class="mb-2 overflow-hidden text-2xl font-semibold whitespace-nowrap">
+                {m.name}
+              </h3>
+              <p class="mb-4 overflow-hidden text-lg whitespace-nowrap opacity-90">
+                {m.role}
+              </p>
+              <div class="pointer-events-auto flex flex-wrap gap-2">
+                {m.socials.map((s) => (
+                  <a
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${m.name} on ${SOCIAL_LABEL[s.kind]}`}
+                    class="inline-flex size-9 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition-colors hover:bg-white/25"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                      set:html={SOCIAL_PATHS[s.kind]}
+                    />
+                  </a>
+                ))}
+              </div>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+
+  <a
+    href="#values"
+    aria-label="Scroll to firm values"
+    class="absolute inset-x-0 bottom-6 mx-auto flex w-fit animate-in flex-col items-center gap-1 text-white/60 transition-colors delay-1000 duration-700 ease-out fill-mode-backwards fade-in hover:text-white md:bottom-8"
+  >
+    <span class="text-[16px] font-medium tracking-widest uppercase">
+      Our values
+    </span>
+    <ChevronDownIcon className="size-5 animate-bounce" />
+  </a>
+</section>
+
+<style>
+  .team-card {
+    width: 240px;
+    clip-path: circle(50% at 50% 50%);
+    transition:
+      width 500ms cubic-bezier(0.5, 0.85, 0.25, 1.15),
+      clip-path 500ms cubic-bezier(0.5, 0.85, 0.25, 1.15),
+      filter 400ms ease-in-out,
+      opacity 400ms ease-in-out;
+  }
+
+  .team-card-content > * {
+    opacity: 0;
+    transform: translateY(20px);
+    transition:
+      opacity 300ms cubic-bezier(0.5, 0.85, 0.25, 1.8),
+      transform 300ms cubic-bezier(0.5, 0.85, 0.25, 1.8);
+  }
+
+  .team-card:hover {
+    width: 640px;
+    clip-path: circle(72.3% at 50% 50%);
+  }
+
+  .team-card:hover .team-card-content > * {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .team-card:hover .team-card-content > *:nth-child(1) {
+    transition-delay: 200ms;
+  }
+  .team-card:hover .team-card-content > *:nth-child(2) {
+    transition-delay: 300ms;
+  }
+  .team-card:hover .team-card-content > *:nth-child(3) {
+    transition-delay: 400ms;
+  }
+
+  .team-grid:has(.team-card:hover) .team-card:not(:hover) {
+    width: 200px;
+    filter: blur(4px);
+    opacity: 0.6;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .team-card,
+    .team-card-content > * {
+      transition: none;
+    }
+  }
+</style>

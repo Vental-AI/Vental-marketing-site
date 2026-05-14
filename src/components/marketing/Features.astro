@@ -1,0 +1,72 @@
+---
+import { getImage } from "astro:assets"
+
+import {
+  FeaturesAccordion,
+  type FeatureItem,
+} from "@/components/marketing/FeaturesAccordion"
+import dataAggregationImage from "@/assets/feature-data-aggregation-image.jpg"
+import taxEstimatorEngineImage from "@/assets/feature-tax-estimation-engine-image.jpg"
+import sensitivityAnalysisImage from "@/assets/feature-sensitivity-analysis-image.jpg"
+import adminDashboardImage from "@/assets/feature-admin-dashboard-image.png"
+
+const [dataAggregation, taxEngine, sensitivity, adminDashboard] =
+  await Promise.all([
+    getImage({ src: dataAggregationImage, format: "webp", width: 1200 }),
+    getImage({ src: taxEstimatorEngineImage, format: "webp", width: 1200 }),
+    getImage({ src: sensitivityAnalysisImage, format: "webp", width: 1200 }),
+    getImage({ src: adminDashboardImage, format: "webp", width: 1200 }),
+  ])
+
+const features: FeatureItem[] = [
+  {
+    id: 1,
+    title: "Data aggregation",
+    image: dataAggregation.src,
+    description:
+      "Vental gathers and normalizes public records across state, county, and municipal sources — parcel attributes, sale history, millage rates, prior assessed values, and non-ad-valorem assessments — and surfaces them in one workspace. Every figure is exportable to PDF, XLSX, or CSV, and shareable with a client or appeal board.",
+  },
+  {
+    id: 2,
+    title: "Tax estimator engine",
+    image: taxEngine.src,
+    description:
+      "Plug in a folio number and a hypothetical sale price; the engine handles the rest. Vental assembles a qualified pool of recent arms-length sales in the same county and asset class, runs a Gaussian-weighted median on the comps' pre-sale ratio, and recovers the bill via per-parcel millage and non-ad-valorem lookups — in seconds, not hours.",
+  },
+  {
+    id: 3,
+    title: "Sensitivity analysis",
+    image: sensitivity.src,
+    description:
+      "Every estimate ships with a calibrated 90% prediction interval that widens when comp support is thin or the subject sits far from the cluster center. Re-run with a different sale price to see how the bill moves, pin or exclude individual comps, or override the method — Vental shows the empirical impact of each change on the prediction.",
+  },
+  {
+    id: 4,
+    title: "Admin dashboard",
+    image: adminDashboard.src,
+    description:
+      "A per-tenant view of every estimate run, exported, or shared in your workspace. Track usage across analysts, audit which comps were excluded on which estimates, and roll up patterns over time. Built on Vental's multi-tenant backend so your workspace data stays isolated.",
+  },
+]
+---
+
+<section id="features" class="border-b border-border">
+  <div class="mx-auto max-w-[1200px] px-6 py-24 md:py-32">
+    <div class="mx-auto flex max-w-2xl flex-col gap-4 text-center">
+      <p
+        class="text-xs font-medium tracking-widest text-muted-foreground uppercase"
+      >
+        Features
+      </p>
+      <h2
+        class="text-3xl font-semibold tracking-tight text-balance sm:text-4xl"
+      >
+        Truth in Numbers
+      </h2>
+    </div>
+
+    <div class="mt-16">
+      <FeaturesAccordion features={features} client:load />
+    </div>
+  </div>
+</section>

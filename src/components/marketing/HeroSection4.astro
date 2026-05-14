@@ -1,0 +1,116 @@
+---
+import { Image } from "astro:assets"
+
+import heroImage from "@/assets/login-page-image.jpg"
+
+const placeholders = [
+  "Northwind CRE",
+  "Halcyon REIT",
+  "Marin & Co.",
+  "Cardinal Tax",
+  "Beacon Partners",
+  "Atlas Appraisal",
+  "Greylock Realty",
+  "Sentinel Group",
+  "Meridian Tax",
+  "Cobalt Advisors",
+]
+const marqueeSequence = [...placeholders, ...placeholders]
+---
+
+<section
+  class="relative isolate flex flex-col overflow-hidden bg-black lg:min-h-svh"
+>
+  <div
+    aria-hidden
+    class="absolute inset-0 -z-10 animate-in duration-1000 ease-out fill-mode-backwards blur-in fade-in"
+  >
+    <Image
+      src={heroImage}
+      alt=""
+      widths={[768, 1280, 1920, 2560]}
+      sizes="100vw"
+      loading="eager"
+      fetchpriority="high"
+      class="size-full object-cover object-center"
+    />
+    <div
+      class="absolute inset-0 bg-gradient-to-r from-black/85 via-black/65 to-black/40"
+    >
+    </div>
+  </div>
+
+  <div
+    class="relative mx-auto flex w-full max-w-6xl flex-1 flex-col justify-center px-6 pt-40 pb-16 md:pt-48 md:pb-20 lg:pb-24"
+  >
+    <div class="max-w-2xl text-white">
+      <h1
+        class="animate-in text-5xl font-medium text-balance delay-150 duration-700 ease-out fill-mode-backwards blur-in fade-in md:text-6xl xl:text-7xl"
+      >
+        Defensible commercial property tax estimates, in seconds.
+      </h1>
+      <p
+        class="mt-8 max-w-2xl animate-in text-lg text-pretty text-white/85 delay-300 duration-700 ease-out fill-mode-backwards blur-in fade-in"
+      >
+        Vental finds the comps, runs the math, and ships the paper trail — built
+        for the way tax consultants, appraisers, underwriters, and CRE owners
+        actually defend an estimation.
+      </p>
+
+      <div
+        class="mt-12 flex animate-in flex-col gap-2 delay-500 duration-700 ease-out fill-mode-backwards blur-in fade-in sm:flex-row"
+      >
+        <a
+          href="mailto:hello@vental.ai"
+          class="inline-flex h-10 items-center rounded-4xl bg-white px-5 text-base font-medium text-zinc-950 transition-colors hover:bg-white/90"
+        >
+          <span class="text-nowrap">Book a demo</span>
+        </a>
+        <a
+          href="/product"
+          class="inline-flex h-10 items-center rounded-4xl border border-white/30 bg-white/10 px-5 text-base font-medium text-white backdrop-blur-sm transition-colors hover:bg-white/20"
+        >
+          <span class="text-nowrap">See the product</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="relative animate-in border-t border-white/10 bg-black/30 py-5 backdrop-blur-sm delay-700 duration-700 ease-out fill-mode-backwards blur-in fade-in"
+  >
+    <div class="group mx-auto max-w-6xl px-6">
+      <div class="flex flex-col items-center md:flex-row">
+        <div class="md:max-w-44 md:border-r md:border-white/15 md:pr-6">
+          <p class="text-end text-sm text-white/80">
+            [Placeholder: powering the best teams]
+          </p>
+        </div>
+        <div class="relative overflow-hidden py-2 md:w-[calc(100%-11rem)]">
+          <div
+            class="flex w-max animate-marquee items-center gap-28 whitespace-nowrap hover:[animation-play-state:paused]"
+          >
+            {
+              marqueeSequence.map((name) => (
+                <span class="text-sm font-medium tracking-tight text-white/60">
+                  {name}
+                </span>
+              ))
+            }
+          </div>
+
+          <div
+            aria-hidden
+            class="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-black/60 to-transparent"
+          >
+          </div>
+          <div
+            aria-hidden
+            class="absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-black/60 to-transparent"
+          >
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

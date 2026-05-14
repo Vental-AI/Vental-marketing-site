@@ -1,0 +1,573 @@
+---
+import { ArrowRightIcon, InfoIcon, TriangleAlertIcon } from "lucide-react"
+import { Image } from "astro:assets"
+
+import Layout from "@/layouts/main.astro"
+import heroImage from "@/assets/login-page-image.jpg"
+import { HeroHeader } from "@/components/marketing/HeroHeader"
+import SiteFooter from "@/components/marketing/SiteFooter.astro"
+import MoneyFlowDiagram from "@/components/marketing/MoneyFlowDiagram.astro"
+import { MethodologyToc } from "@/components/marketing/MethodologyToc"
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@/components/ui/alert"
+import { Card, CardContent } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+
+const sections = [
+  { id: "the-question", number: "01", title: "The question we're answering" },
+  { id: "end-to-end-flow", number: "02", title: "End-to-end flow" },
+  { id: "why-a-ratio", number: "03", title: "Why we predict a ratio" },
+  { id: "comp-pool", number: "04", title: "Building the comp pool" },
+  { id: "kernel-method", number: "05", title: "The kernel method" },
+  {
+    id: "weighting-changes-answer",
+    number: "06",
+    title: "Why weighting matters",
+  },
+  { id: "flat-fallback", number: "07", title: "When the kernel falls back" },
+  { id: "likely-range", number: "08", title: "The likely range" },
+  { id: "warnings", number: "09", title: "Reading the warnings panel" },
+  { id: "limitations", number: "10", title: "What this estimator is not" },
+]
+---
+
+<Layout
+  title="Calculation methodology · Vental"
+  description="A practitioner's guide to how Vental's Tax Estimator turns a sale price into a defensible tax bill."
+>
+  <div
+    class="dark relative isolate min-h-svh overflow-x-hidden bg-background text-foreground"
+  >
+    <HeroHeader client:load />
+    <main>
+      <section class="relative isolate overflow-hidden bg-black">
+        <div
+          aria-hidden
+          class="absolute inset-0 -z-10 animate-in fade-in blur-in fill-mode-backwards duration-1000 ease-out"
+        >
+          <Image
+            src={heroImage}
+            alt=""
+            widths={[1280, 1920, 2560]}
+            sizes="100vw"
+            loading="eager"
+            class="size-full object-cover object-center"
+          />
+          <div
+            class="absolute inset-0 bg-gradient-to-b from-black/55 via-black/75 to-background"
+          >
+          </div>
+        </div>
+
+        <div
+          class="relative mx-auto max-w-[1200px] px-6 pt-32 pb-16 md:pt-40 md:pb-20"
+        >
+          <div
+            class="animate-in fade-in blur-in fill-mode-backwards delay-150 duration-700 ease-out text-sm font-medium text-white/70"
+          >
+            <a href="/product" class="transition-colors hover:text-white"
+              >Product</a
+            > · Tax Estimator
+          </div>
+          <h1
+            class="animate-in fade-in blur-in fill-mode-backwards delay-300 duration-700 ease-out mt-3 text-4xl font-semibold tracking-tight text-white md:text-5xl"
+          >
+            Calculation Methodology
+          </h1>
+          <p
+            class="animate-in fade-in blur-in fill-mode-backwards delay-500 duration-700 ease-out mt-4 max-w-3xl text-base text-white/80"
+          >
+            A practitioner's guide to how the Tax Estimator turns a sale
+            price into a tax bill. Written for real estate analysts and
+            underwriters — no statistics background assumed.
+          </p>
+        </div>
+      </section>
+
+      <div class="mx-auto w-full max-w-[1200px] px-6 py-12 md:py-16">
+        <div class="grid gap-12 xl:grid-cols-[minmax(0,1fr)_14rem] xl:gap-10">
+          <article class="mx-auto w-full max-w-3xl xl:mx-0 xl:max-w-none">
+
+          <h2
+            id="the-question"
+            class="mt-2 mb-4 flex scroll-mt-24 items-baseline gap-3 text-2xl font-semibold tracking-tight"
+          >
+            <span class="font-mono text-base text-muted-foreground">01</span>
+            The question we're answering
+          </h2>
+          <p class="text-base leading-7">
+            When a commercial property sells, the county usually reassesses
+            it. The new taxable value — and therefore the new tax bill —
+            depends on local rules, prior assessments, and the price paid.
+            The Tax Estimator answers a single question:
+          </p>
+          <blockquote
+            class="my-5 border-l-4 border-primary/70 bg-muted/40 px-5 py-4 text-base italic"
+          >
+            “If this property sold today at price <strong>V</strong>, what
+            would the county tax it next year?”
+          </blockquote>
+          <p class="text-base leading-7">
+            The estimator returns three things: a point estimate of the
+            total tax bill, a likely range around it, and a step-by-step
+            breakdown of how the answer was assembled. It is built from
+            observed behavior on recent comparable sales, not from county
+            valuation formulas.
+          </p>
+
+          <h2
+            id="end-to-end-flow"
+            class="mt-12 mb-4 flex scroll-mt-24 items-baseline gap-3 text-2xl font-semibold tracking-tight"
+          >
+            <span class="font-mono text-base text-muted-foreground">02</span>
+            End-to-end flow
+          </h2>
+          <p class="text-base leading-7">
+            The total tax bill is the sum of two pieces: an <em>ad valorem</em>
+            tax (driven by assessed value × millage rate) and <em>non-ad-valorem</em>
+            assessments (fixed jurisdictional fees — fire, drainage, lighting,
+            etc.).
+          </p>
+          <MoneyFlowDiagram />
+          <p class="text-base leading-7">
+            The only quantity the estimator <em>predicts</em> is the
+            <strong>tax assessment ratio</strong> — the fraction of the sale
+            price that the county will treat as taxable. Millage rates and
+            non-ad-valorem assessments are looked up directly from the
+            county's parcel and jurisdictional records. Most of this page is
+            about how we predict the ratio.
+          </p>
+
+          <h2
+            id="why-a-ratio"
+            class="mt-12 mb-4 flex scroll-mt-24 items-baseline gap-3 text-2xl font-semibold tracking-tight"
+          >
+            <span class="font-mono text-base text-muted-foreground">03</span>
+            Why we predict a ratio, not a dollar amount
+          </h2>
+          <p class="text-base leading-7">
+            A $20M industrial property and a $2M industrial property pay
+            dramatically different tax bills. But the <em>ratio</em> of
+            taxable value to sale price across qualified, arms-length sales
+            tends to cluster within a tight band for properties in the same
+            county and asset class. That makes the ratio a far stabler
+            quantity to model than the dollar bill itself.
+          </p>
+          <p class="text-base leading-7">
+            Once we have a predicted ratio, recovering dollars is mechanical:
+          </p>
+          <Card className="my-5 bg-muted/30">
+            <CardContent className="overflow-x-auto py-6">
+              <div
+                class="space-y-2 text-center font-mono text-base leading-loose"
+              >
+                <p>
+                  Taxable Value <span class="text-muted-foreground">=</span>
+                  Predicted Ratio <span class="text-muted-foreground">×</span>
+                  Sale Price
+                </p>
+                <p>
+                  Ad Valorem Tax <span class="text-muted-foreground">=</span>
+                  Taxable Value <span class="text-muted-foreground">×</span>
+                  Millage Rate
+                </p>
+                <p>
+                  <strong>Total Tax Bill</strong>
+                  <span class="text-muted-foreground">=</span>
+                  Ad Valorem Tax <span class="text-muted-foreground">+</span>
+                  Non-Ad-Valorem
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <h2
+            id="comp-pool"
+            class="mt-12 mb-4 flex scroll-mt-24 items-baseline gap-3 text-2xl font-semibold tracking-tight"
+          >
+            <span class="font-mono text-base text-muted-foreground">04</span>
+            Building the comparable-sales pool
+          </h2>
+          <p class="text-base leading-7">
+            For each estimate, the engine assembles a pool of qualified
+            arms-length sales that share the subject's <strong>county</strong>
+            and <strong>asset class</strong> (office, retail, industrial,
+            multifamily, etc.) within the last three years. Each comp
+            contributes two numbers:
+          </p>
+          <ul class="my-4 flex flex-col gap-2 pl-6 text-base leading-7">
+            <li class="list-disc">
+              <strong>The comp's tax assessment ratio</strong> — what we
+              ultimately want to predict for the subject. Computed as
+              <code class="rounded bg-muted px-1.5 py-0.5 font-mono text-sm"
+                >taxable_after_sale ÷ sale_price</code
+              >.
+            </li>
+            <li class="list-disc">
+              <strong>The comp's pre-sale ratio</strong> — a similarity
+              coordinate, computed as
+              <code class="rounded bg-muted px-1.5 py-0.5 font-mono text-sm"
+                >prior-year market value ÷ sale price</code
+              >. Think of this as "how stale was the previous assessment
+              relative to where the property actually trades?"
+            </li>
+          </ul>
+          <p class="text-base leading-7">
+            The pool is filtered to remove anomalies — comps whose ratio
+            falls outside [0.30, 1.50] are dropped as data errors. The
+            estimator currently covers Palm Beach, Broward, and Miami-Dade.
+            A typical industrial subject in a well-covered county draws on
+            hundreds of comps; thinner classes (hospitality,
+            special-purpose) and newer-onboarding counties typically have
+            20–50.
+          </p>
+
+          <h2
+            id="kernel-method"
+            class="mt-12 mb-4 flex scroll-mt-24 items-baseline gap-3 text-2xl font-semibold tracking-tight"
+          >
+            <span class="font-mono text-base text-muted-foreground">05</span>
+            The kernel method — weighting by similarity
+          </h2>
+          <p class="text-base leading-7">
+            Not every comp deserves an equal vote. A property whose prior
+            assessment was 95% of its eventual sale price tells us something
+            very different about post-sale reassessment than one whose prior
+            assessment was only 40% of its sale price. Counties tend to
+            reassess <em>more aggressively</em> after a sale when the prior
+            assessment looks stale — so the pre-sale ratio is the single
+            strongest signal of post-sale behavior.
+          </p>
+          <p class="text-base leading-7">
+            The kernel method gives every comp a weight between 0 and 1
+            based on how close its pre-sale ratio is to the subject's. Comps
+            right at the subject's pre-sale ratio receive full weight; comps
+            far from it fade smoothly toward zero.
+          </p>
+          <figure
+            class="my-6 overflow-hidden rounded-2xl border border-border bg-card"
+          >
+            <img
+              src="/methodology/kernel_weighting.png"
+              alt="A bell curve showing how comp weight decays with distance from the subject's pre-sale ratio"
+              class="w-full"
+              loading="lazy"
+            />
+            <figcaption
+              class="border-t border-border bg-muted/40 px-4 py-2 text-xs text-muted-foreground"
+            >
+              The bell curve is the weighting function. Comps near the
+              subject (vertical dashed line) count fully; distant comps fade
+              toward zero.
+            </figcaption>
+          </figure>
+          <p class="text-base leading-7">
+            The width of the bell — the "bandwidth" — is tuned offline per
+            county and asset class so that the resulting predictions track
+            historical truth as tightly as possible. The tuning step also
+            measures how much the kernel actually improves on a simple
+            median in each (county, class) — that measurement drives the
+            warnings discussed in §07 and §09 below, so the estimator only
+            flags flat-mode predictions as a problem in the counties and
+            classes where the kernel demonstrably helps.
+          </p>
+
+          <h2
+            id="weighting-changes-answer"
+            class="mt-12 mb-4 flex scroll-mt-24 items-baseline gap-3 text-2xl font-semibold tracking-tight"
+          >
+            <span class="font-mono text-base text-muted-foreground">06</span>
+            Why weighting changes the answer
+          </h2>
+          <p class="text-base leading-7">
+            To turn weighted comps into a single predicted ratio we use the
+            <strong>weighted median</strong>, not the mean. The median resists
+            one or two unusual sales pulling the prediction off-course; the
+            weights tilt that median toward the comps that actually look like
+            your subject.
+          </p>
+          <figure
+            class="my-6 overflow-hidden rounded-2xl border border-border bg-card"
+          >
+            <img
+              src="/methodology/weighted_vs_simple.png"
+              alt="Two scatter plots comparing simple median to weighted median across the same comp pool"
+              class="w-full"
+              loading="lazy"
+            />
+            <figcaption
+              class="border-t border-border bg-muted/40 px-4 py-2 text-xs text-muted-foreground"
+            >
+              Same comps in both panels. Left: every dot counts equally —
+              the simple median is dragged down by all the lower-ratio
+              comps far from the subject. Right: dots are sized by their
+              kernel weight; the weighted median lands closer to the comps
+              that actually resemble the subject.
+            </figcaption>
+          </figure>
+          <Alert className="my-5">
+            <InfoIcon />
+            <AlertTitle>How to read this in your estimate</AlertTitle>
+            <AlertDescription>
+              The Comparable Sales table on the estimate page shows the
+              comps the engine pulled. In kernel mode, each row has a
+              <strong>Similarity</strong> column — that's the weight,
+              expressed as a percentage. The weighted median is computed
+              across exactly those weights.
+            </AlertDescription>
+          </Alert>
+          <p class="text-base leading-7">
+            How much the kernel improves on a simple median depends on the
+            county. Counties whose post-sale reassessments are uneven —
+            where a stale prior assessment is a strong cue that the parcel
+            will jump after a sale — reward the kernel's locality bias
+            most. In Palm Beach County the kernel cuts median absolute
+            error by 2–4 percentage points across the workhorse asset
+            classes. In Broward County, where post-sale reassessments land
+            much more uniformly close to sale price across the comp pool,
+            the kernel and the simple median produce nearly identical
+            predictions on most classes. The engine's per-county tuning
+            measures this gap from each county's own historical residuals,
+            and the warnings you see on the estimate page reflect it.
+          </p>
+
+          <h2
+            id="flat-fallback"
+            class="mt-12 mb-4 flex scroll-mt-24 items-baseline gap-3 text-2xl font-semibold tracking-tight"
+          >
+            <span class="font-mono text-base text-muted-foreground">07</span>
+            When the kernel falls back to a simple median
+          </h2>
+          <p class="text-base leading-7">
+            The kernel method requires two things to work: the subject must
+            have a prior-year market value on file, and the comp pool must
+            contain enough sales with the same. When either condition
+            fails, the engine falls back to an <strong>unweighted median</strong>
+            of comp ratios — what we call <em>flat mode</em>. Whether this
+            represents a meaningful loss of precision depends on the county
+            and asset class.
+          </p>
+          <p class="mt-4 text-base leading-7">
+            When the fallback happens in a (county, class) where historical
+            data shows the kernel beats a simple median, the estimate page
+            surfaces a
+            <code class="rounded bg-muted px-1.5 py-0.5 font-mono text-sm"
+              >FLAT_MODE_FALLBACK</code
+            > warning whose severity reflects how much the kernel typically
+            wins by, and whose message quotes the actual empirical gap. Treat
+            those results as directional rather than precise.
+          </p>
+          <p class="mt-4 text-base leading-7">
+            When the fallback happens in a (county, class) where the kernel
+            and a simple median are essentially tied, no warning is raised —
+            flat-mode is just as reliable as kernel-mode in that segment,
+            and a generic warning would be misleading.
+          </p>
+
+          <h2
+            id="likely-range"
+            class="mt-12 mb-4 flex scroll-mt-24 items-baseline gap-3 text-2xl font-semibold tracking-tight"
+          >
+            <span class="font-mono text-base text-muted-foreground">08</span>
+            The likely range — and why it varies
+          </h2>
+          <p class="text-base leading-7">
+            Every estimate ships with a <em>prediction interval</em> — the
+            "Likely range" shown on the estimate page. It is calibrated
+            against historical residuals so that, on average, the actual
+            tax bill lands inside the range about 90% of the time.
+          </p>
+          <p class="text-base leading-7">
+            The width of the band is not constant. It scales by two factors
+            that we know empirically predict whether the estimate will be
+            reliable:
+          </p>
+          <ol class="my-4 flex flex-col gap-2 pl-6 text-base leading-7">
+            <li class="list-decimal">
+              <strong>Effective comp support.</strong> A subject whose
+              prediction is driven by 30 strongly-similar comps gets a
+              tight band. A subject whose prediction is driven by 2
+              weakly-similar comps gets a wide one.
+            </li>
+            <li class="list-decimal">
+              <strong>
+                How far the subject sits from the comp pool's center.
+              </strong>
+              Subjects whose pre-sale ratio is near 1.0 (prior assessment ≈
+              sale price) sit in the densely-populated middle of the comp
+              space. Subjects whose pre-sale ratio is far from 1.0 sit in
+              sparse, historically less-predictable territory.
+            </li>
+          </ol>
+          <figure
+            class="my-6 overflow-hidden rounded-2xl border border-border bg-card"
+          >
+            <img
+              src="/methodology/prediction_interval.png"
+              alt="A heatmap showing how the prediction interval widens with thin support or far-from-center subjects"
+              class="w-full"
+              loading="lazy"
+            />
+            <figcaption
+              class="border-t border-border bg-muted/40 px-4 py-2 text-xs text-muted-foreground"
+            >
+              The band width relative to a typical estimate. A typical
+              estimate (bottom right) is 1×. Thin support, far-from-center,
+              or both push the band wider — the worst case (top left) is
+              roughly 5–8× the typical band.
+            </figcaption>
+          </figure>
+          <p class="text-base leading-7">
+            Thin support and far-from-center are <em>multiplicative</em>: a
+            subject that is both gets a much wider band than the sum of
+            either alone. This is the model being honest — when historical
+            data thins out around the subject, the band has to grow to
+            keep its 90% coverage promise.
+          </p>
+
+          <h2
+            id="warnings"
+            class="mt-12 mb-4 flex scroll-mt-24 items-baseline gap-3 text-2xl font-semibold tracking-tight"
+          >
+            <span class="font-mono text-base text-muted-foreground">09</span>
+            Reading the warnings panel
+          </h2>
+          <p class="text-base leading-7">
+            Most estimates surface zero warnings. When the engine flags
+            something, the warning panel sits directly under the input form
+            and uses a three-tier severity scheme:
+          </p>
+          <div class="my-5 grid gap-3 sm:grid-cols-3">
+            <Card className="border-red-200 bg-red-50 text-red-900 dark:border-red-900 dark:bg-red-950 dark:text-red-50">
+              <CardContent className="flex flex-col gap-1 px-4 py-3">
+                <div class="flex items-center gap-2 text-sm font-semibold">
+                  <TriangleAlertIcon className="size-4" />
+                  High
+                </div>
+                <p class="text-xs leading-5 opacity-90">
+                  Treat the estimate as directional. The model is
+                  operating outside its strong-support regime.
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-50">
+              <CardContent className="flex flex-col gap-1 px-4 py-3">
+                <div class="flex items-center gap-2 text-sm font-semibold">
+                  <TriangleAlertIcon className="size-4" />
+                  Medium
+                </div>
+                <p class="text-xs leading-5 opacity-90">
+                  The estimate is usable but precision is reduced.
+                  Examples: thin comp pool, missing NAV.
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="flex flex-col gap-1 px-4 py-3">
+                <div class="flex items-center gap-2 text-sm font-semibold">
+                  <InfoIcon className="size-4" />
+                  Low
+                </div>
+                <p class="text-xs leading-5 text-muted-foreground">
+                  Informational. Examples: asset class override applied,
+                  relaxed comp window.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+          <p class="text-base leading-7">
+            The two highest-impact warnings to watch for are
+            <code class="rounded bg-muted px-1.5 py-0.5 font-mono text-sm"
+              >EXTREME_PRE_JV_RATIO</code
+            > (subject sits far from the comp-space center) and
+            <code class="rounded bg-muted px-1.5 py-0.5 font-mono text-sm"
+              >THIN_COMP_SUPPORT</code
+            > (the prediction is driven by very few effective comps). Either
+            should prompt you to double-check the comp pool yourself before
+            relying on the headline number.
+          </p>
+          <p class="mt-4 text-base leading-7">
+            The cut-offs that decide when these warnings fire are not fixed
+            numbers baked into the engine — they're computed from each
+            (county, class)'s historical distributions during the offline
+            tuning step. "Far from the comp-space center" and "thin
+            support" mean different things in Palm Beach than they do in
+            Broward, and the warnings reflect each county's own empirical
+            regime. Same for
+            <code class="rounded bg-muted px-1.5 py-0.5 font-mono text-sm"
+              >FLAT_MODE_FALLBACK</code
+            > and
+            <code class="rounded bg-muted px-1.5 py-0.5 font-mono text-sm"
+              >HETEROGENEOUS_CLASS</code
+            >: whether they fire — and at what severity — is decided by the
+            county's own data, not by hard-coded class lists.
+          </p>
+
+          <h2
+            id="limitations"
+            class="mt-12 mb-4 flex scroll-mt-24 items-baseline gap-3 text-2xl font-semibold tracking-tight"
+          >
+            <span class="font-mono text-base text-muted-foreground">10</span>
+            What this estimator does <em>not</em> do
+          </h2>
+          <ul class="my-4 flex flex-col gap-3 pl-6 text-base leading-7">
+            <li class="list-disc">
+              <strong>It does not apply personal exemptions.</strong>
+              Homestead, senior, veteran, and similar exemptions apply to
+              specific owners, not properties. The estimate reflects
+              pre-exemption taxable value.
+            </li>
+            <li class="list-disc">
+              <strong>It does not predict mid-year reassessments</strong>
+              driven by improvements, demolitions, or land-use changes.
+              The pool only sees the previous-year assessment and the
+              post-sale assessment.
+            </li>
+            <li class="list-disc">
+              <strong>It does not cover residential or vacant land.</strong>
+              Eligible asset classes are commercial: office, retail,
+              industrial, multifamily, hospitality, and special-purpose.
+            </li>
+            <li class="list-disc">
+              <strong>It is not a county valuation model.</strong> It
+              learns from observed county behavior, not from the formal
+              valuation formulas the assessor's office uses internally.
+            </li>
+          </ul>
+
+          <Separator className="my-12" />
+
+          <div class="rounded-2xl border border-border bg-muted/30 p-6">
+            <div class="text-sm font-medium text-muted-foreground">
+              Want to see it in action?
+            </div>
+            <p class="mt-1 text-base">
+              Book a 20-minute walkthrough on a property of your choosing
+              and inspect the comp table, warnings, and step-by-step
+              breakdown.
+            </p>
+            <a
+              href="mailto:hello@vental.ai"
+              class="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+            >
+              Book a demo <ArrowRightIcon className="size-4" />
+            </a>
+          </div>
+        </article>
+
+        <aside class="hidden xl:block">
+          <div
+            class="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto pt-1"
+          >
+            <MethodologyToc sections={sections} client:load />
+          </div>
+        </aside>
+        </div>
+      </div>
+    </main>
+    <SiteFooter />
+  </div>
+</Layout>

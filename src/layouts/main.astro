@@ -1,0 +1,47 @@
+---
+import "@/styles/global.css"
+import faviconUrl from "../assets/vental-logo.svg?url"
+
+interface Props {
+  title?: string
+  description?: string
+}
+
+const {
+  title = "Vental — Defensible commercial property tax estimates",
+  description = "Comps-based commercial property tax estimates for CRE professionals. Look up a property and get a defensible valuation in minutes.",
+} = Astro.props
+---
+
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" type="image/svg+xml" href={faviconUrl} />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0f14" />
+
+    <script is:inline>
+      const stored = localStorage.getItem("theme")
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches
+      const isDark = stored === "dark" || (stored == null && prefersDark)
+      document.documentElement.classList.toggle("dark", isDark)
+    </script>
+  </head>
+  <body class="bg-background text-foreground antialiased">
+    <slot />
+  </body>
+</html>

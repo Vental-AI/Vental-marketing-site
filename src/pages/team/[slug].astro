@@ -1,0 +1,183 @@
+---
+import { Image } from "astro:assets"
+import { ArrowLeftIcon } from "lucide-react"
+
+import Layout from "@/layouts/main.astro"
+import { HeroHeader } from "@/components/marketing/HeroHeader"
+import SiteFooter from "@/components/marketing/SiteFooter.astro"
+import heroImage from "@/assets/login-page-image.jpg"
+import { team, SOCIAL_LABEL, SOCIAL_PATHS } from "@/data/team"
+
+export async function getStaticPaths() {
+  return team.map((m) => ({
+    params: { slug: m.slug },
+    props: { member: m },
+  }))
+}
+
+const { member } = Astro.props
+---
+
+<Layout
+  title={`${member.name} · Vental`}
+  description={`${member.name}, ${member.role} at Vental.`}
+>
+  <div
+    class="dark relative isolate overflow-x-hidden bg-background text-foreground"
+  >
+    <HeroHeader client:load />
+    <main
+      class="relative isolate flex min-h-svh flex-col overflow-hidden bg-black"
+    >
+      <div
+        aria-hidden
+        class="absolute inset-0 -z-10 animate-in fade-in blur-in fill-mode-backwards duration-1000 ease-out"
+      >
+        <Image
+          src={heroImage}
+          alt=""
+          widths={[1280, 1920, 2560]}
+          sizes="100vw"
+          loading="eager"
+          class="size-full object-cover object-center"
+        />
+        <div
+          class="absolute inset-0 bg-gradient-to-b from-black/65 via-black/75 to-black/85"
+        >
+        </div>
+      </div>
+
+      <div
+        class="relative mx-auto w-full max-w-5xl px-6 pt-24 pb-12 text-white md:pt-28 md:pb-16"
+      >
+        <a
+          href="/about"
+          class="animate-in fade-in blur-in fill-mode-backwards delay-150 duration-700 ease-out inline-flex items-center gap-1.5 text-sm font-medium text-white/70 transition-colors hover:text-white"
+        >
+          <ArrowLeftIcon className="size-4" />
+          Back to the team
+        </a>
+
+        <div
+          class="mt-6 grid grid-cols-1 items-start gap-6 sm:grid-cols-[160px_minmax(0,1fr)] sm:gap-8 md:grid-cols-[200px_minmax(0,1fr)] md:gap-10 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-12"
+        >
+          <aside
+            class="animate-in fade-in blur-in fill-mode-backwards delay-300 duration-700 ease-out flex flex-col gap-4"
+          >
+            <div
+              class="relative aspect-[4/5] w-[140px] overflow-hidden rounded-3xl bg-white/5 ring-1 ring-white/10 sm:w-full"
+            >
+              {
+                typeof member.img === "string" ? (
+                  <img
+                    src={member.img}
+                    alt={`${member.name} portrait`}
+                    class:list={[
+                      "absolute inset-0 size-full object-cover",
+                      member.imgClass,
+                    ]}
+                  />
+                ) : (
+                  <Image
+                    src={member.img}
+                    alt={`${member.name} portrait`}
+                    widths={[160, 200, 240, 400, 480]}
+                    sizes="(min-width: 1024px) 240px, (min-width: 768px) 200px, (min-width: 640px) 160px, 140px"
+                    loading="eager"
+                    class:list={[
+                      "absolute inset-0 size-full object-cover",
+                      member.imgClass,
+                    ]}
+                  />
+                )
+              }
+            </div>
+
+            <ul class="flex flex-wrap gap-2">
+              {
+                member.socials.map((s) => (
+                  <li>
+                    <a
+                      href={s.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`${member.name} on ${SOCIAL_LABEL[s.kind]}`}
+                      class="inline-flex size-9 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition-colors hover:bg-white/25"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                        set:html={SOCIAL_PATHS[s.kind]}
+                      />
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </aside>
+
+          <article
+            class="animate-in fade-in blur-in fill-mode-backwards delay-500 duration-700 ease-out flex flex-col gap-3"
+          >
+            <h1
+              class="text-3xl font-semibold tracking-tight text-white sm:text-4xl md:text-5xl"
+            >
+              {member.name}
+            </h1>
+            <p class="text-base text-white/85 md:text-lg">{member.role}</p>
+            {
+              member.tagline && (
+                <p class="max-w-2xl text-pretty text-sm text-white/70 md:text-base">
+                  {member.tagline}
+                </p>
+              )
+            }
+
+            <section class="mt-3 rounded-2xl bg-white/5 p-5 ring-1 ring-white/10 backdrop-blur-sm md:p-6">
+              <h2
+                class="text-xs font-medium tracking-widest text-white/70 uppercase"
+              >
+                Professional experience
+              </h2>
+              <div class="mt-4 flex flex-col gap-3">
+                {
+                  member.bio.professionalExperience.map((para) => (
+                    <p class="text-sm leading-6 text-white/85 md:text-base md:leading-7">
+                      {para}
+                    </p>
+                  ))
+                }
+              </div>
+            </section>
+
+            <section class="rounded-2xl bg-white/5 p-5 ring-1 ring-white/10 backdrop-blur-sm md:p-6">
+              <h2
+                class="text-xs font-medium tracking-widest text-white/70 uppercase"
+              >
+                Personal background
+              </h2>
+              <div class="mt-4 flex flex-col gap-3">
+                {
+                  member.bio.personalBackground.map((para) => (
+                    <p class="text-sm leading-6 text-white/85 md:text-base md:leading-7">
+                      {para}
+                    </p>
+                  ))
+                }
+              </div>
+            </section>
+          </article>
+        </div>
+      </div>
+    </main>
+    <SiteFooter />
+  </div>
+</Layout>

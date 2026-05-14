@@ -1,0 +1,37 @@
+---
+import Layout from "@/layouts/main.astro"
+---
+
+<Layout
+  title="Not found · Vental"
+  description="The page you're looking for doesn't exist."
+>
+  <div class="grid min-h-svh grid-cols-1 lg:grid-cols-2">
+    <div class="flex flex-col items-center justify-center px-4 py-8 text-center">
+      <h2 class="mb-6 text-5xl font-semibold">Whoops!</h2>
+      <h3 class="mb-1.5 text-3xl font-semibold">Something went wrong</h3>
+      <p class="mb-6 max-w-sm text-muted-foreground">
+        The page you&apos;re looking for isn&apos;t found, let&apos;s guide
+        you back home.
+      </p>
+      <a
+        href="/"
+        class="inline-flex h-11 items-center justify-center rounded-lg bg-primary px-6 text-base font-medium text-primary-foreground transition-colors hover:bg-primary/80"
+      >
+        Back to home page
+      </a>
+    </div>
+
+    <div class="relative max-h-svh w-full p-2 max-lg:hidden">
+      <div class="h-full w-full rounded-2xl bg-black"></div>
+      <img
+        src="/not-found.png"
+        alt="404 illustration"
+        width="1408"
+        height="814"
+        loading="eager"
+        class="absolute top-1/2 left-1/2 h-[clamp(260px,25vw,406px)] w-auto -translate-x-1/2 -translate-y-1/2"
+      />
+    </div>
+  </div>
+</Layout>

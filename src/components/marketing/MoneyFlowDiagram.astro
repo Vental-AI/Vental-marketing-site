@@ -1,0 +1,192 @@
+---
+const W = 1200
+const H = 280
+const boxW = 200
+const boxH = 96
+const boxY = 78
+const cy = boxY + boxH / 2
+
+type Kind = "value" | "op"
+interface Box {
+  kind: Kind
+  lines: string[]
+  emphasized?: boolean
+}
+
+const boxes: Box[] = [
+  { kind: "value", lines: ["Sale Price", "your input"] },
+  { kind: "op", lines: ["× Tax Ratio", "predicted"] },
+  { kind: "value", lines: ["= Taxable Value"] },
+  { kind: "op", lines: ["× Millage", "+ NAV"] },
+  { kind: "value", lines: ["= Total Tax Bill"], emphasized: true },
+]
+const gap = (W - boxes.length * boxW) / (boxes.length + 1)
+
+const annotations = [
+  { idx: 1, label: "Predicted by the Estimator" },
+  { idx: 3, label: "Looked up per parcel / county" },
+]
+---
+
+<figure class="my-8 overflow-hidden rounded-2xl border border-border bg-card">
+  <div class="px-4 py-6 sm:px-8 sm:py-8">
+    <svg
+      viewBox={`0 0 ${W} ${H}`}
+      class="h-auto w-full"
+      xmlns="http://www.w3.org/2000/svg"
+      role="img"
+      aria-label="Tax bill calculation flow: sale price times predicted tax ratio yields taxable value, times millage plus non-ad-valorem yields total tax bill."
+    >
+      <defs>
+        <filter
+          id="moneyflow-shadow"
+          x="-20%"
+          y="-20%"
+          width="140%"
+          height="140%"
+        >
+          <feDropShadow
+            dx="0"
+            dy="2"
+            stdDeviation="3"
+            flood-color="#0f172a"
+            flood-opacity="0.08"
+          />
+        </filter>
+        <marker
+          id="moneyflow-arrow"
+          viewBox="0 0 10 10"
+          refX="9"
+          refY="5"
+          markerWidth="7"
+          markerHeight="7"
+          orient="auto-start-reverse"
+        >
+          <path d="M0,0 L10,5 L0,10 Z" class="fill-muted-foreground/70"></path>
+        </marker>
+      </defs>
+
+      {
+        boxes.slice(0, -1).map((_, i) => {
+          const x1 = gap + (i + 1) * boxW + i * gap - 2
+          const x2 = gap + (i + 1) * boxW + (i + 1) * gap + 2
+          return (
+            <line
+              x1={x1}
+              y1={cy}
+              x2={x2}
+              y2={cy}
+              class="stroke-muted-foreground/70"
+              stroke-width="1.5"
+              marker-end="url(#moneyflow-arrow)"
+            />
+          )
+        })
+      }
+
+      {
+        boxes.map((b, i) => {
+          const x = gap + i * (boxW + gap)
+          const accent = b.kind === "op"
+          const emphasized = b.emphasized
+          const fillClass = accent
+            ? "fill-sky-50 stroke-sky-500 dark:fill-sky-950 dark:stroke-sky-400"
+            : emphasized
+              ? "fill-card stroke-foreground"
+              : "fill-card stroke-border"
+          const textFill = accent
+            ? "fill-sky-700 dark:fill-sky-200"
+            : "fill-foreground"
+          const subFill = accent
+            ? "fill-sky-600/90 dark:fill-sky-300/90"
+            : "fill-muted-foreground"
+          return (
+            <g>
+              <rect
+                x={x}
+                y={boxY}
+                width={boxW}
+                height={boxH}
+                rx={14}
+                ry={14}
+                class={fillClass}
+                stroke-width={accent || emphasized ? 1.5 : 1}
+                filter="url(#moneyflow-shadow)"
+              />
+              {b.lines.length === 1 ? (
+                <text
+                  x={x + boxW / 2}
+                  y={cy}
+                  text-anchor="middle"
+                  dominant-baseline="middle"
+                  class={textFill}
+                  style={`font-size:18px;font-weight:${emphasized ? 700 : 600};font-family:ui-sans-serif,system-ui,-apple-system,sans-serif`}
+                >
+                  {b.lines[0]}
+                </text>
+              ) : (
+                <>
+                  <text
+                    x={x + boxW / 2}
+                    y={cy - 12}
+                    text-anchor="middle"
+                    dominant-baseline="middle"
+                    class={textFill}
+                    style="font-size:18px;font-weight:600;font-family:ui-sans-serif,system-ui,-apple-system,sans-serif"
+                  >
+                    {b.lines[0]}
+                  </text>
+                  <text
+                    x={x + boxW / 2}
+                    y={cy + 14}
+                    text-anchor="middle"
+                    dominant-baseline="middle"
+                    class={subFill}
+                    style="font-size:13px;font-family:ui-sans-serif,system-ui,-apple-system,sans-serif"
+                  >
+                    {b.lines[1]}
+                  </text>
+                </>
+              )}
+            </g>
+          )
+        })
+      }
+
+      {
+        annotations.map(({ idx, label }) => {
+          const x = gap + idx * (boxW + gap) + boxW / 2
+          const y0 = boxY + boxH
+          return (
+            <g>
+              <line
+                x1={x}
+                y1={y0 + 6}
+                x2={x}
+                y2={y0 + 22}
+                class="stroke-sky-500/60 dark:stroke-sky-400/60"
+                stroke-width="1.5"
+              />
+              <text
+                x={x}
+                y={y0 + 38}
+                text-anchor="middle"
+                dominant-baseline="middle"
+                class="fill-sky-600 dark:fill-sky-300"
+                style="font-size:13px;font-style:italic;font-weight:500;font-family:ui-sans-serif,system-ui,-apple-system,sans-serif"
+              >
+                {label}
+              </text>
+            </g>
+          )
+        })
+      }
+    </svg>
+  </div>
+  <figcaption
+    class="border-t border-border bg-muted/40 px-4 py-2 text-xs text-muted-foreground"
+  >
+    The estimator predicts the tax assessment ratio. Everything else is a
+    lookup or arithmetic.
+  </figcaption>
+</figure>
