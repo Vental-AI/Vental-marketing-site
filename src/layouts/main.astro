@@ -5,12 +5,17 @@ import faviconUrl from "../assets/vental-logo.svg?url"
 interface Props {
   title?: string
   description?: string
+  image?: string
 }
 
 const {
   title = "Vental — Defensible commercial property tax estimates",
   description = "Comps-based commercial property tax estimates for CRE professionals. Look up a property and get a defensible valuation in minutes.",
+  image = "/og-image.jpg",
 } = Astro.props
+
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site).toString()
+const imageUrl = new URL(image, Astro.site).toString()
 ---
 
 <!doctype html>
@@ -20,16 +25,28 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
     <link rel="icon" type="image/svg+xml" href={faviconUrl} />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="canonical" href={canonicalUrl} />
 
     <title>{title}</title>
     <meta name="description" content={description} />
 
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Vental" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content={canonicalUrl} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
+    <meta property="og:image" content={imageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Vental — commercial property tax estimates" />
+
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={imageUrl} />
+    <meta name="twitter:image:alt" content="Vental — commercial property tax estimates" />
 
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0f14" />

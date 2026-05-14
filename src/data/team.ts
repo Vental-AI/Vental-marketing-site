@@ -88,8 +88,6 @@ export const team: Member[] = [
   {
     slug: "hugo-barberis",
     img: hugoPhoto,
-    imgClass: "scale-90",
-    contentClass: "pl-[6%]",
     name: "Hugo Barberis",
     role: "Co-founder, co-CEO, & COO",
     tagline: "Leading Vental's strategic initiatives, sales, and customer relationships.",
