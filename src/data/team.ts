@@ -65,7 +65,7 @@ export const team: Member[] = [
     slug: "max-sands",
     img: maxPhoto,
     name: "Max Sands",
-    role: "Co-founder, CEO, & CTO",
+    role: "Co-founder, co-CEO, & CTO",
     tagline: "Handling the data, application, and technology layer for Vental.",
     bio: {
       professionalExperience: [
@@ -91,7 +91,7 @@ export const team: Member[] = [
     imgClass: "scale-90",
     contentClass: "pl-[6%]",
     name: "Hugo Barberis",
-    role: "Co-founder, COO, & Head of Sales",
+    role: "Co-founder, co-CEO, & COO",
     tagline: "Leading Vental's strategic initiatives, sales, and customer relationships.",
     bio: {
       professionalExperience: [

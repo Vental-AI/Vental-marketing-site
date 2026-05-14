@@ -6,6 +6,7 @@ import { Logo } from "@/components/marketing/Logo"
 import { cn } from "@/lib/utils"
 
 const menuItems = [
+  { name: "Home", href: "/" },
   { name: "Product", href: "/product" },
   { name: "Methodology", href: "/product/methodology" },
   { name: "About", href: "/about" },
@@ -77,7 +78,7 @@ export function HeroHeader() {
 
             <div
               className={cn(
-                "mb-6 hidden w-full flex-wrap items-center justify-end gap-8 rounded-3xl border border-border bg-background p-6 shadow-2xl shadow-zinc-300/20",
+                "mb-6 hidden w-full flex-wrap items-center justify-end gap-10 rounded-3xl border border-border bg-background p-6 shadow-2xl shadow-zinc-300/20",
                 "in-data-[state=active]:block",
                 "md:flex-nowrap lg:m-0 lg:flex lg:w-fit lg:gap-6 lg:border-transparent lg:bg-transparent lg:p-0 lg:shadow-none lg:in-data-[state=active]:flex dark:shadow-none dark:lg:bg-transparent",
               )}
@@ -96,7 +97,7 @@ export function HeroHeader() {
                   ))}
                 </ul>
               </div>
-              <div className="flex w-full flex-col gap-3 sm:flex-row md:w-fit md:items-center">
+              <div className="flex w-full flex-col gap-3 border-t border-border pt-6 sm:flex-row md:w-fit md:items-center lg:border-t-0 lg:pt-0">
                 <Button asChild size="sm">
                   <a href="mailto:hello@vental.ai">
                     <span>Book a demo</span>
