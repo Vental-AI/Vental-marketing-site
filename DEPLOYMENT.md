@@ -1,161 +1,217 @@
-# Deployment — GitHub Pages (GitHub Actions)
+# Deployment — Cloudflare Workers (static assets, via Wrangler)
 
-The marketing site is a fully static Astro build (`output: "static"`),
-deployed to GitHub Pages by a workflow that runs on every push to
-`main`. No adapter, no edge functions, no manual upload step.
+The marketing site is a fully static Astro build (`output: "static"`)
+deployed to **Cloudflare Workers with static-asset uploads** via the
+Wrangler CLI. Not Cloudflare Pages — Workers-with-assets is the modern
+path Cloudflare is consolidating toward and matches how this repo was
+configured before the brief detour through GitHub Pages.
 
 The loop is:
 
 ```
-edit → commit → push → GitHub Actions builds & deploys → live
+edit → commit → push → `pnpm deploy:cf` → live
 ```
 
-That's the whole pipeline. This doc covers the one-time setup, then
-the zero-command deploy loop after that.
+The deploy step is manual (one local command). No CI, no GitHub
+Actions, no auto-build-on-push.
+
+---
+
+## Why Cloudflare Workers (not Pages, not GitHub Pages)
+
+`vental.ai` is registered with Cloudflare Registrar, and Cloudflare
+Registrar domains are locked to Cloudflare's nameservers — you can't
+delegate DNS elsewhere without transferring the registrar. So the apex
+site has to be on a Cloudflare-native host. GitHub Pages is ruled out
+(needs to be authoritative for the apex's A records).
+
+That leaves Cloudflare Pages or Cloudflare Workers. We use Workers
+because:
+
+- Workers-with-static-assets is Cloudflare's current direction; Pages
+  is essentially in feature-parity-then-deprecation mode.
+- Single CLI tool (`wrangler`) handles deploy, rollback, log tail,
+  domain config — no separate dashboard click-flow for routine work.
+- `wrangler.jsonc` is committed; the deploy is fully reproducible from
+  source. Pages stores build config in its dashboard, not in the repo.
+
+The actual app (`{tenant}.vental.ai`) lives on Render and resolves
+through Cloudflare DNS via individual per-tenant CNAMEs. This repo
+only serves the apex marketing site at `vental.ai` (and
+`www.vental.ai`).
 
 ---
 
 ## Prerequisites
 
-- Repo hosted on GitHub (this one: `Vental-AI/Vental-marketing-site`).
-- Owner/admin access to the repo settings.
-- DNS for `vental.ai` controllable at the registrar (or current DNS
-  provider — see DNS section).
-- `pnpm build` succeeds locally with zero warnings.
+- Cloudflare account with Workers enabled (free tier is plenty for a
+  static marketing site).
+- DNS for `vental.ai` on Cloudflare (it is — Cloudflare Registrar +
+  Cloudflare DNS, the standard combo).
+- `pnpm install && pnpm build` succeeds locally with zero warnings.
 - Node 20+ and pnpm 10.4+ locally (`package.json` declares both via
   `engines` and `packageManager`).
+- `wrangler` installed via `pnpm install` (it's in `devDependencies`).
 
 ---
 
-## One-time GitHub setup
+## One-time setup
 
-### 1. Enable Pages with GitHub Actions as the source
+### 1. Log in to Cloudflare from the CLI
 
-In the repo: **Settings → Pages → Build and deployment → Source:
-GitHub Actions.**
+```bash
+pnpm cf:login
+```
 
-That's it. The workflow at `.github/workflows/deploy.yml` will take
-over from here.
+Opens a browser tab to authorize Wrangler against your Cloudflare
+account. Sets up local credentials at `~/.config/.wrangler/`. One-time
+per machine.
 
-### 2. Push to `main`
+### 2. First deploy
 
-The first push to `main` (or a manual run via **Actions → Deploy to
-GitHub Pages → Run workflow**) builds the site and publishes it. You
-can find the deployment URL in the Actions run summary, under the
-`deploy` job.
+```bash
+pnpm deploy:cf
+```
 
-### 3. Attach the custom domain
+This runs `astro build` then `wrangler deploy`. On the very first
+deploy Wrangler:
 
-In **Settings → Pages → Custom domain**, enter `vental.ai` and save.
-GitHub will verify the apex `CNAME` file in the repo
-([public/CNAME](public/CNAME)) and start provisioning a Let's Encrypt
-certificate. Once that's done (usually < 15 min), tick **Enforce
-HTTPS**.
+- Reads `wrangler.jsonc` (project name `vental-marketing-site`, asset
+  directory `./dist`).
+- Creates the Worker if it doesn't already exist.
+- Uploads the contents of `dist/` as static assets.
+- Prints the Worker's default URL, something like
+  `https://vental-marketing-site.<your-subdomain>.workers.dev`.
 
-> The `CNAME` file lives in `public/` so Astro copies it into `dist/`
-> on every build. Without it, GitHub Pages would strip the custom
-> domain after each deploy.
+Browse that URL to confirm the site is up.
+
+### 3. Attach custom domains
+
+Cloudflare dashboard → **Workers & Pages** → **vental-marketing-site**
+→ **Settings** → **Domains & Routes** → **Add** → **Custom Domain** →
+enter `vental.ai`. Cloudflare auto-creates the DNS record on your
+`vental.ai` zone (since registrar + DNS are both Cloudflare) and
+provisions the TLS certificate in seconds. Repeat for
+`www.vental.ai`.
+
+No manual DNS work required — the Custom Domain flow handles routing
+internally.
+
+### 4. (Optional) apex/www canonical redirect
+
+If you want `https://www.vental.ai/*` to 301-redirect to
+`https://vental.ai/*`:
+
+- Cloudflare dashboard → `vental.ai` zone → **Rules** → **Redirect Rules**
+  → **Create rule**
+- When incoming requests match: `Hostname` equals `www.vental.ai`
+- Then: Static redirect to URL `https://vental.ai${path}`, status `301`
+
+Or drop a `public/_redirects` file in this repo with:
+
+```
+https://www.vental.ai/* https://vental.ai/:splat 301!
+```
+
+Either works. The Cloudflare Rule is friendlier to revert.
 
 ---
 
 ## DNS
 
-Point `vental.ai` at GitHub Pages. The exact UI depends on your DNS
-provider — the records are the same.
+The apex marketing site lives on Cloudflare DNS via the Workers
+Custom Domain you attached in step 3. **No A or CNAME records to add
+manually** — the Custom Domain flow injects what's needed.
 
-### Apex `vental.ai` — A records
+For the rest of the zone (the actual app on Render), see the parent
+project's deployment checklist (`DEPLOYMENT_CHECKLIST.md` in the
+backend repo). Tenant subdomains use individual CNAMEs
+(`demo.vental.ai`, `test.vental.ai`, etc.) pointing at
+`vental-web.onrender.com`, not a wildcard.
 
-```
-185.199.108.153
-185.199.109.153
-185.199.110.153
-185.199.111.153
-```
-
-### Apex `vental.ai` — AAAA records (IPv6, recommended)
-
-```
-2606:50c0:8000::153
-2606:50c0:8001::153
-2606:50c0:8002::153
-2606:50c0:8003::153
-```
-
-### `www.vental.ai` — CNAME
-
-```
-www  CNAME  vental-ai.github.io
-```
-
-(Use `<org-or-user>.github.io`, not `<repo>.github.io`. For this repo
-that's `vental-ai.github.io`.)
-
-> ⚠️ **Do NOT** point `*.vental.ai` (wildcard) at GitHub Pages. The
-> actual app lives at `{tenant}.vental.ai` on a separate stack —
-> leave that DNS record alone.
-
-### If Cloudflare is still your DNS provider
-
-Set the records above as **DNS-only (gray cloud)**, at least until
-GitHub finishes provisioning the cert. You can re-enable the orange
-cloud (CDN/WAF proxy) afterward if desired.
+> ⚠️ **Do NOT** point `*.vental.ai` (wildcard) at any Render service.
+> Cloudflare Registrar + Cloudflare DNS + Render-via-Cloudflare-edge
+> triggers Cloudflare Error 1000 ("DNS points to prohibited IP") on
+> wildcards. Add per-tenant CNAMEs instead — one record per tenant at
+> provisioning time.
 
 ---
 
 ## The deploy loop
 
-After setup, deploys are automatic.
+After setup, deploys are one command:
 
 ```bash
-git add .
-git commit -m "..."
-git push origin main
+pnpm deploy:cf
 ```
 
-The **Deploy to GitHub Pages** workflow runs in ~1–2 minutes. Watch it
-in **Actions** or just refresh `vental.ai`.
+That's the whole flow. The script does `astro build && wrangler deploy`
+and prints the new deployment's URL. Typical wall time: 10–30 seconds
+for the build, another 10–30 for the upload.
 
-### Manual deploy (no code change)
+### Preview deploys (test before promoting)
 
-**Actions → Deploy to GitHub Pages → Run workflow → Run.**
+```bash
+pnpm deploy:cf:preview
+```
 
-Useful for re-deploying after a Settings change or to retry a flaky
-build.
+Runs `astro build && wrangler versions upload`. Uploads a new version
+of the Worker without promoting it to production — Wrangler prints a
+preview URL you can share. When you're ready to promote, the
+production deploy (`pnpm deploy:cf`) replaces it.
+
+### Watch logs in real time
+
+```bash
+pnpm wrangler tail
+```
+
+Streams request logs from the deployed Worker. Useful for debugging
+404s, redirect rules, or whatever else.
 
 ---
 
 ## Rollback
 
-GitHub Pages keeps deploy history per environment.
+Every deploy creates a new Wrangler "version". You can promote any
+prior version back to production:
 
-**Settings → Environments → github-pages → Deployment history → pick a
-previous deploy → "Re-run"** on the workflow that produced it.
+```bash
+pnpm wrangler versions list
+pnpm wrangler versions deploy <version-id>
+```
 
-Alternatively, `git revert` the offending commit and push — the next
-deploy puts the prior version back.
+Or via the dashboard: **Workers & Pages → vental-marketing-site →
+Deployments → pick a previous version → Promote**.
+
+Alternatively, `git revert` the offending commit and re-run
+`pnpm deploy:cf`.
 
 ---
 
-## Local sanity checklist before pushing
+## Local sanity checklist before deploying
 
 ```bash
-pnpm install        # if deps changed
-pnpm build          # 0 warnings
-pnpm preview        # spot-check at http://localhost:4321
+pnpm install   # if deps changed
+pnpm build     # 0 warnings
+pnpm preview   # spot-check at http://localhost:4321
 ```
 
-The Actions runner uses the same Node 20 + pnpm 10.4.1 + frozen
-lockfile, so a clean local build means a clean CI build.
+`pnpm deploy:cf` runs `astro build` again under the hood, but doing it
+once locally first catches build-time errors without a round-trip to
+Cloudflare.
 
 ---
 
 ## Quick reference
 
-| Concern                                 | Where it lives                                       |
-| --------------------------------------- | ---------------------------------------------------- |
-| Build & deploy                          | `.github/workflows/deploy.yml` (runs on push)        |
-| Custom domain                           | `public/CNAME` + Settings → Pages → Custom domain    |
-| HTTPS                                   | Settings → Pages → Enforce HTTPS (after cert issues) |
-| DNS                                     | Registrar / DNS provider — A + AAAA + CNAME above    |
-| Rollback                                | `git revert` + push, or re-run a prior workflow      |
-| Tenant subdomain (`{slug}.vental.ai`)   | **Separate stack** — leave its DNS alone             |
+| Concern                               | Where it lives                                            |
+| ------------------------------------- | --------------------------------------------------------- |
+| Build & deploy                        | `pnpm deploy:cf` (manual, local)                          |
+| Deploy config                         | `wrangler.jsonc` (committed)                              |
+| Custom domain                         | Workers project → Settings → Domains & Routes             |
+| HTTPS                                 | Auto-issued by Cloudflare when custom domain attached     |
+| DNS                                   | Cloudflare DNS (registrar + DNS both on Cloudflare)       |
+| Rollback                              | `pnpm wrangler versions deploy <id>` OR dashboard Promote |
+| Real-time logs                        | `pnpm wrangler tail`                                      |
+| Tenant subdomain (`{slug}.vental.ai`) | **Separate stack on Render** — see backend repo           |
