@@ -1,212 +1,161 @@
-# Deployment — Cloudflare Pages (direct upload)
+# Deployment — GitHub Pages (GitHub Actions)
 
-The marketing site is a fully static Astro build (`output: "static"`), so
-Cloudflare Pages serves `dist/` directly. No Cloudflare adapter, no
-Workers, no edge functions, no Git integration.
+The marketing site is a fully static Astro build (`output: "static"`),
+deployed to GitHub Pages by a workflow that runs on every push to
+`main`. No adapter, no edge functions, no manual upload step.
 
 The loop is:
 
 ```
-edit → pnpm build → upload dist/ → live
+edit → commit → push → GitHub Actions builds & deploys → live
 ```
 
-That's the whole pipeline. This doc covers the one-time setup, then the
-two-command deploy loop after that.
+That's the whole pipeline. This doc covers the one-time setup, then
+the zero-command deploy loop after that.
 
 ---
 
 ## Prerequisites
 
-- A Cloudflare account.
-- `vental.ai` already on Cloudflare DNS (so custom-domain setup is one
-  click).
+- Repo hosted on GitHub (this one: `Vental-AI/Vental-marketing-site`).
+- Owner/admin access to the repo settings.
+- DNS for `vental.ai` controllable at the registrar (or current DNS
+  provider — see DNS section).
 - `pnpm build` succeeds locally with zero warnings.
 - Node 20+ and pnpm 10.4+ locally (`package.json` declares both via
   `engines` and `packageManager`).
 
 ---
 
-## First deploy — dashboard drag-and-drop
+## One-time GitHub setup
 
-Easiest possible first deploy. No CLI, no auth setup, takes < 60 seconds.
+### 1. Enable Pages with GitHub Actions as the source
 
-1. Build locally:
-   ```bash
-   pnpm install
-   pnpm build
-   ```
-2. In the Cloudflare dashboard: **Workers & Pages → Create application →
-   Pages → Upload assets**.
-3. Project name: `vental-marketing-site` (this becomes the
-   `<project>.pages.dev` URL).
-4. Drag the `dist/` folder into the upload box.
-5. Click **Deploy site**.
+In the repo: **Settings → Pages → Build and deployment → Source:
+GitHub Actions.**
 
-When the deploy finishes, Cloudflare hands back a `<project>.pages.dev`
-URL — open it, spot-check the site looks right, then move to **Custom
-domains** below.
+That's it. The workflow at `.github/workflows/deploy.yml` will take
+over from here.
 
----
+### 2. Push to `main`
 
-## Subsequent deploys — Wrangler CLI
+The first push to `main` (or a manual run via **Actions → Deploy to
+GitHub Pages → Run workflow**) builds the site and publishes it. You
+can find the deployment URL in the Actions run summary, under the
+`deploy` job.
 
-After the project exists, future deploys go straight from your shell.
+### 3. Attach the custom domain
 
-### One-time CLI setup
+In **Settings → Pages → Custom domain**, enter `vental.ai` and save.
+GitHub will verify the apex `CNAME` file in the repo
+([public/CNAME](public/CNAME)) and start provisioning a Let's Encrypt
+certificate. Once that's done (usually < 15 min), tick **Enforce
+HTTPS**.
 
-```bash
-# install wrangler as a dev dependency
-pnpm add -D wrangler
-
-# authenticate once (opens a browser tab)
-pnpm exec wrangler login
-```
-
-### The deploy command
-
-```bash
-pnpm build
-pnpm exec wrangler pages deploy dist --project-name=vental-marketing-site
-```
-
-Wrangler uploads `dist/`, creates an atomic deployment, and prints the
-production URL when it's done. ~10 seconds for a typical deploy.
-
-### Optional: add a `deploy` script
-
-To make it a single command, add this to `package.json` under `scripts`:
-
-```jsonc
-"deploy": "astro build && wrangler pages deploy dist --project-name=vental-marketing-site"
-```
-
-Then just:
-
-```bash
-pnpm deploy
-```
-
-### Preview deploys
-
-By default Wrangler creates a production deploy. For a preview (separate
-URL, doesn't replace prod):
-
-```bash
-pnpm exec wrangler pages deploy dist \
-  --project-name=vental-marketing-site \
-  --branch=preview
-```
-
-Each `--branch=<name>` gets its own stable URL — useful for sharing a
-work-in-progress version with someone before promoting.
+> The `CNAME` file lives in `public/` so Astro copies it into `dist/`
+> on every build. Without it, GitHub Pages would strip the custom
+> domain after each deploy.
 
 ---
 
-## Attach the custom domains
+## DNS
 
-One-time, in the Cloudflare dashboard:
+Point `vental.ai` at GitHub Pages. The exact UI depends on your DNS
+provider — the records are the same.
 
-**Pages project → Custom domains → Set up a custom domain.**
+### Apex `vental.ai` — A records
 
-1. Enter `vental.ai`. Cloudflare detects you own the zone, writes a
-   CNAME-flattened record at the apex (`@ → <project>.pages.dev`), and
-   asks you to Activate. Click activate.
-2. Repeat for `www.vental.ai`.
+```
+185.199.108.153
+185.199.109.153
+185.199.110.153
+185.199.111.153
+```
 
-CNAME flattening on the apex is Cloudflare-only magic — no `A`/`ALIAS`
-gymnastics, no manual DNS edits. Activation is effectively instant.
+### Apex `vental.ai` — AAAA records (IPv6, recommended)
 
-> ⚠️ **Do NOT** point `*.vental.ai` (wildcard) at this Pages project.
-> The actual app lives at `{tenant}.vental.ai` on a separate stack —
-> leave that DNS record alone. Pages only owns `vental.ai` and
-> `www.vental.ai`. Cloudflare's setup respects this automatically (it
-> only writes records for names you explicitly add), but worth a sanity
-> check in DNS once you're live.
+```
+2606:50c0:8000::153
+2606:50c0:8001::153
+2606:50c0:8002::153
+2606:50c0:8003::153
+```
+
+### `www.vental.ai` — CNAME
+
+```
+www  CNAME  vental-ai.github.io
+```
+
+(Use `<org-or-user>.github.io`, not `<repo>.github.io`. For this repo
+that's `vental-ai.github.io`.)
+
+> ⚠️ **Do NOT** point `*.vental.ai` (wildcard) at GitHub Pages. The
+> actual app lives at `{tenant}.vental.ai` on a separate stack —
+> leave that DNS record alone.
+
+### If Cloudflare is still your DNS provider
+
+Set the records above as **DNS-only (gray cloud)**, at least until
+GitHub finishes provisioning the cert. You can re-enable the orange
+cloud (CDN/WAF proxy) afterward if desired.
 
 ---
 
-## Redirect `www → apex` (recommended)
+## The deploy loop
 
-Pick one:
+After setup, deploys are automatic.
 
-### Option A — Cloudflare Bulk Redirect (cleanest, doesn't touch code)
-
-**Rules → Redirect Rules → Create rule:**
-
-- **When**: `(http.host eq "www.vental.ai")`
-- **Then**: Dynamic redirect →
-  `concat("https://vental.ai", http.request.uri.path)`
-- **Status**: 301
-- **Preserve query string**: yes
-
-The redirect happens at Cloudflare's edge — never reaches Pages.
-
-### Option B — `public/_redirects` (lives with the code)
-
-Create `public/_redirects` with:
-
-```
-https://www.vental.ai/* https://vental.ai/:splat 301!
+```bash
+git add .
+git commit -m "..."
+git push origin main
 ```
 
-Either works; the Cloudflare Rule is slightly faster but requires
-re-editing in the dashboard if you ever change it.
+The **Deploy to GitHub Pages** workflow runs in ~1–2 minutes. Watch it
+in **Actions** or just refresh `vental.ai`.
 
----
+### Manual deploy (no code change)
 
-## Security + cache headers (optional)
+**Actions → Deploy to GitHub Pages → Run workflow → Run.**
 
-Create `public/_headers` to ship sensible defaults:
-
-```
-/*
-  X-Content-Type-Options: nosniff
-  Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: camera=(), microphone=(), geolocation=()
-  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
-
-/_astro/*
-  Cache-Control: public, max-age=31536000, immutable
-```
-
-The `_astro/` rule caches Astro's content-hashed asset bundle (JS, CSS,
-optimized images) effectively forever. Hashes change on every build, so
-it's safe to be aggressive.
+Useful for re-deploying after a Settings change or to retry a flaky
+build.
 
 ---
 
 ## Rollback
 
-Cloudflare keeps deploy history regardless of how each one was uploaded.
+GitHub Pages keeps deploy history per environment.
 
-**Pages project → Deployments → pick a previous deploy → Manage deployment
-→ Rollback to this deployment.**
+**Settings → Environments → github-pages → Deployment history → pick a
+previous deploy → "Re-run"** on the workflow that produced it.
 
-One click. Instant. The previous version is live again.
+Alternatively, `git revert` the offending commit and push — the next
+deploy puts the prior version back.
 
 ---
 
-## Local sanity checklist before every deploy
+## Local sanity checklist before pushing
 
 ```bash
-pnpm install        # clean install (only if deps changed)
+pnpm install        # if deps changed
 pnpm build          # 0 warnings
-pnpm preview        # spot-check the built site at http://localhost:4321
+pnpm preview        # spot-check at http://localhost:4321
 ```
 
-If those are clean, the upload will be clean — there's no Cloudflare
-build step that could disagree with your local environment.
+The Actions runner uses the same Node 20 + pnpm 10.4.1 + frozen
+lockfile, so a clean local build means a clean CI build.
 
 ---
 
 ## Quick reference
 
-| Concern                                 | Where it lives                                  |
-| --------------------------------------- | ----------------------------------------------- |
-| First deploy                            | Dashboard drag-and-drop of `dist/`              |
-| Recurring deploys                       | `pnpm build && wrangler pages deploy dist …`    |
-| Custom domains                          | Pages project → Custom domains                  |
-| `www → apex` redirect                   | Cloudflare Redirect Rule OR `public/_redirects` |
-| Cache + security headers                | `public/_headers`                               |
-| Rollback                                | Pages project → Deployments → Manage            |
-| Tenant subdomain (`{slug}.vental.ai`)   | **Separate stack** — leave its DNS alone        |
+| Concern                                 | Where it lives                                       |
+| --------------------------------------- | ---------------------------------------------------- |
+| Build & deploy                          | `.github/workflows/deploy.yml` (runs on push)        |
+| Custom domain                           | `public/CNAME` + Settings → Pages → Custom domain    |
+| HTTPS                                   | Settings → Pages → Enforce HTTPS (after cert issues) |
+| DNS                                     | Registrar / DNS provider — A + AAAA + CNAME above    |
+| Rollback                                | `git revert` + push, or re-run a prior workflow      |
+| Tenant subdomain (`{slug}.vental.ai`)   | **Separate stack** — leave its DNS alone             |
