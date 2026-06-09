@@ -1,6 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "vental-marketing-site",
+  "account_id": "4657bcfc82513042b7d11f29e3817400",
   "compatibility_date": "2026-05-13",
   "assets": {
     "directory": "./dist",
